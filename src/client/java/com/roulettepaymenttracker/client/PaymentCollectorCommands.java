@@ -26,7 +26,7 @@ public class PaymentCollectorCommands {
     private static String specifiedComponentWord = "Otrzymałeś:"; // the word that will be checked with payment message
     private static int positionOfAmount = 2; // where's located amount that player has sent
     private static int positionOfUsername = 4; // where's located player's username
-    private static int paymentMessageComponentsSize = 5; // what's the size of the payment message
+    private static int paymentMessageComponentSize = 5; // what's the size of the payment message
     public int getPositionOfSpecifiedWord() {
         return positionOfSpecifiedWord;
     }
@@ -39,8 +39,8 @@ public class PaymentCollectorCommands {
     public int getPositionOfUsername() {
         return positionOfUsername;
     }
-    public int getPaymentMessageComponentsSize() {
-        return paymentMessageComponentsSize;
+    public int getPaymentMessageComponentSize() {
+        return paymentMessageComponentSize;
     }
 
     private static final Gson gson = new Gson();
@@ -64,7 +64,7 @@ public class PaymentCollectorCommands {
         jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
         jsonObject.addProperty("positionOfAmount", positionOfAmount);
         jsonObject.addProperty("positionOfUsername", positionOfUsername);
-        jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
+        jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentSize);
         if (Files.exists(paymentCollectorConfigFilePath)) {
             try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath, StandardCharsets.UTF_8)) {
                 gson.toJson(jsonObject, fileWriter);
@@ -110,11 +110,11 @@ public class PaymentCollectorCommands {
             System.out.println("Creating paymentCollectorConfig.json file with default values.");
 
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("positionOfSpecifiedWord", positionOfSpecifiedWord);
-            jsonObject.addProperty("specifiedComponentWord", specifiedComponentWord);
-            jsonObject.addProperty("positionOfAmount", positionOfAmount);
-            jsonObject.addProperty("positionOfUsername", positionOfUsername);
-            jsonObject.addProperty("paymentMessageComponentsSize", paymentMessageComponentsSize);
+            jsonObject.addProperty("positionOfSpecifiedWord", 0);
+            jsonObject.addProperty("specifiedComponentWord", "");
+            jsonObject.addProperty("positionOfAmount", 0);
+            jsonObject.addProperty("positionOfUsername", 0);
+            jsonObject.addProperty("paymentMessageComponentsSize", 0);
 
             try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
                 gson.toJson(jsonObject, fileWriter);
@@ -158,7 +158,7 @@ public class PaymentCollectorCommands {
                     positionOfUsername = json.get("positionOfUsername").getAsInt();
 
                 if (json.has("paymentMessageComponentsSize"))
-                    paymentMessageComponentsSize = json.get("paymentMessageComponentsSize").getAsInt();
+                    paymentMessageComponentSize = json.get("paymentMessageComponentsSize").getAsInt();
 
                 System.out.println("Successfully loaded payment collector config.");
 
@@ -201,7 +201,7 @@ public class PaymentCollectorCommands {
                                                     client.player.sendMessage(Text.literal("§7Position of specified word: §a" + positionOfSpecifiedWord), false);
                                                     client.player.sendMessage(Text.literal("§7Position of amount: §a" + positionOfAmount), false);
                                                     client.player.sendMessage(Text.literal("§7Position of username: §a" + positionOfUsername), false);
-                                                    client.player.sendMessage(Text.literal("§7Message components size: §a" + paymentMessageComponentsSize), false);
+                                                    client.player.sendMessage(Text.literal("§7Message components size: §a" + paymentMessageComponentSize), false);
                                                 }
                                                 return 1;
                                             })
@@ -290,12 +290,12 @@ public class PaymentCollectorCommands {
                                                                 int newSize = IntegerArgumentType.getInteger(context, "size");
                                                                 MinecraftClient client = MinecraftClient.getInstance();
                                                                 if (client != null && client.player != null) {
-                                                                    if (paymentMessageComponentsSize != newSize) {
-                                                                        paymentMessageComponentsSize = newSize;
+                                                                    if (paymentMessageComponentSize != newSize) {
+                                                                        paymentMessageComponentSize = newSize;
                                                                         saveConfigToJSON();
-                                                                        client.player.sendMessage(Text.literal("§aSize of message component array set to: " + paymentMessageComponentsSize), false);
+                                                                        client.player.sendMessage(Text.literal("§aSize of message component array set to: " + paymentMessageComponentSize), false);
                                                                     } else {
-                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + paymentMessageComponentsSize), false);
+                                                                        client.player.sendMessage(Text.literal(alreadyChangedText + paymentMessageComponentSize), false);
                                                                     }
                                                                 }
                                                                 return 1;
