@@ -6,55 +6,54 @@ import { useDashboard } from "../hooks/useDashboard.ts";
 import { useViewerConfig } from "../hooks/useViewerConfig.ts";
 
 export default function Header() {
-    let servername = useViewerConfig().servername;
-
+    const viewerConfig = useViewerConfig();
     const dashboard = useDashboard();
 
     const [rouletteStatus, setRouletteStatus] = useState<boolean>(false);
     const [rouletteStatusOpacity, setRouletteStatusOpacity] = useState<number>(1);
 
     const [timeLeftToDraw, setTimeLeftToDraw] = useState<number>(0);
-    const [winnerAmount, setWinnerAmount] = useState<number>(0);
     const [winner, setWinner] = useState<string>("");
+    const [winnerAmount, setWinnerAmount] = useState<number>(0);
     const [winnerOpacity, setWinnerOpacity] = useState<number>(0);
-    const [winnerAnimationDone, setWinnerAnimationDone] = useState(false);
+    const [winnerAnimating, setWinnerAnimating] = useState<boolean>(false);
 
-    const timeToDraw = useViewerConfig().timeToDraw;
-    const showWinnerBeforeFade = 3;
+    const [readyToStart, setReadyToStart] = useState<boolean>(false);
+    const timeToDraw = viewerConfig.timeToDraw;
+    const showWinnerBeforeFade = 3; // seconds
+    const animationFadeDuration = 200; // ms
 
-    let [readyToStart, setReadyToStart] = useState<boolean>(false);
+    // Update readyToStart based on player count
     useEffect(() => {
-        if (dashboard.playerCount >= 2) {
-            setReadyToStart(true);
-        }
-        else {
-            setReadyToStart(false);
-        }
+        setReadyToStart(dashboard.playerCount >= 2);
     }, [dashboard.playerCount]);
 
+    // Update roulette status from dashboard
     useEffect(() => {
         if (!readyToStart || !rouletteStatus) {
             setRouletteStatus(dashboard.rouletteStatus);
         }
-    }, [dashboard.rouletteStatus]);
+    }, [dashboard.rouletteStatus, readyToStart, rouletteStatus]);
 
-    // Animate rouletteStatus opacity
+    // Animate roulette opacity
     useEffect(() => {
-        setRouletteStatusOpacity(rouletteStatus ? 0 : 1);
-    }, [rouletteStatus]);
+        // Fade roulette out if game inactive, otherwise fade in after winner finishes
+        if (!winnerAnimating) {
+            setRouletteStatusOpacity(rouletteStatus ? 0 : 1);
+        }
+    }, [rouletteStatus, winnerAnimating]);
 
-    // Countdown timer logic
+    // Countdown timer
     useEffect(() => {
         let timerID: ReturnType<typeof setInterval> | null = null;
 
         if (readyToStart && rouletteStatus) {
-            setTimeLeftToDraw(timeToDraw); // reset timer
+            setTimeLeftToDraw(timeToDraw);
             timerID = setInterval(() => {
                 setTimeLeftToDraw((prev) => {
                     if (prev <= 1) {
-                        setWinnerAmount(dashboard.winAmount);
                         drawTheWinner().catch(console.error);
-                        return timeToDraw; // reset timer
+                        return timeToDraw;
                     }
                     return prev - 1;
                 });
@@ -70,61 +69,55 @@ export default function Header() {
 
     // Draw winner
     async function drawTheWinner() {
-        if (window.electronAPI && window.electronAPI.drawTheWinner) {
+        if (window.electronAPI?.drawTheWinner) {
             const result = await window.electronAPI.drawTheWinner();
             setWinner(result.winner);
             setWinnerAmount(result.winAmount);
             setWinnerOpacity(1);
+            setWinnerAnimating(true);
         }
     }
 
-    // Winner fade-out effect
+    // Winner fade-out effect & synchronized roulette fade-in
     useEffect(() => {
         if (!winner) return;
 
         const visibleTimeout = setTimeout(() => {
-            const fadeInterval = setInterval(() => {
-                setWinnerOpacity((prev) => {
-                    if (prev <= 0) {
-                        clearInterval(fadeInterval);
-                        setWinnerOpacity(0);
-                        setWinnerAnimationDone(true);
-                        return 0;
-                    }
-                    return +(prev - 0.05).toFixed(2);
-                });
-            }, 50);
+            // Start fading winner out
+            setWinnerOpacity(0);
+
+            // Fade roulette in at the same time
+            setRouletteStatusOpacity(rouletteStatus ? 0 : 1);
+
+            const fadeEndTimeout = setTimeout(() => {
+                setWinner("");
+                setWinnerAnimating(false);
+            }, animationFadeDuration);
+
+            return () => clearTimeout(fadeEndTimeout);
         }, showWinnerBeforeFade * 1000);
 
         return () => clearTimeout(visibleTimeout);
-    }, [winner]);
-
-    // Reset roulette status after winner animation
-    useEffect(() => {
-        if (winnerAnimationDone) {
-            setRouletteStatus(dashboard.rouletteStatus);
-            setWinnerAnimationDone(false);
-        }
-    }, [winnerAnimationDone, dashboard.rouletteStatus]);
+    }, [winner, rouletteStatus]);
 
     return (
         <>
             <div
                 className="show_winner"
-                style={{ opacity: winnerOpacity, transition: "opacity 200ms linear" }}
+                style={{ opacity: winnerOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}
             >
                 <ShowWinner username={winner} amount={winnerAmount} />
             </div>
 
             <div
                 className="roulette_status"
-                style={{ opacity: rouletteStatusOpacity, transition: "opacity 200ms linear" }}
+                style={{ opacity: rouletteStatusOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}
             >
                 <RouletteStatus />
             </div>
 
             <header className="header">
-                <div className="header_title">Ruletka {servername}</div>
+                <div className="header_title">Ruletka {viewerConfig.servername}</div>
                 <div className="header_counter">
                     <div id="grey_text">Losowanie za: </div>
                     <div id="yellow_text">
