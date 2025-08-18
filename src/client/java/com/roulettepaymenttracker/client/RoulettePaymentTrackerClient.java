@@ -9,10 +9,13 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
     RouletteStatusCommands rouletteStatusCommands = new RouletteStatusCommands();
     PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
+    RouletteOtherCommands rouletteOtherCommands = new RouletteOtherCommands();
+    PaymenDataCommands paymenDataCommands = new PaymenDataCommands();
+
+
     PaymentCollector paymentCollector = new PaymentCollector();
     PaymentDataManager paymentDataManager = new PaymentDataManager();
 
-    RouletteOtherCommands rouletteOtherCommands = new RouletteOtherCommands();
 
     private int tickCounter = 0;
     private static final int updateWinnerDataTicks = 10; // 20 ticks == 1 second
@@ -32,12 +35,12 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        rouletteStatusCommands.register();
-
         paymentCollectorCommands.loadConfigFromJSON();
-        paymentCollectorCommands.register();
 
+        rouletteStatusCommands.register();
+        paymentCollectorCommands.register();
         rouletteOtherCommands.register();
+        paymenDataCommands.register();
 
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             rouletteStatusCommands.reset_roulette_status();

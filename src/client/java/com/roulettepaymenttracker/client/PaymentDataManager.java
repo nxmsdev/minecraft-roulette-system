@@ -117,14 +117,4 @@ public class PaymentDataManager {
         executorService.shutdown(); // closes the database connection thread
         System.out.println("Closing Payment Data Manager thread.");
     }
-
-    public void clearData() {
-        try (FileWriter fileWriter = new FileWriter(filePath)) {
-            fileWriter.write("[]");
-            System.out.println("JSON file has been cleared properly.");
-        }
-        catch (IOException exception) {
-            System.out.println("Something went wrong when trying to clear JSON file: " + exception);
-        }
-    }
 }
