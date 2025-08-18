@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import ShowWinner from "./ShowWinner.tsx";
 import RouletteStatus from "./RouletteStatus.tsx";
 import { useDashboard } from "../hooks/useDashboard.ts";
-import {useViewerConfig } from "../hooks/useViewerConfig.ts";
+import { useViewerConfig } from "../hooks/useViewerConfig.ts";
 
 export default function Header() {
     let servername = useViewerConfig().servername;
@@ -22,9 +22,20 @@ export default function Header() {
     const timeToDraw = useViewerConfig().timeToDraw;
     const showWinnerBeforeFade = 3;
 
-    // Update rouletteStatus when dashboard changes
+    let [readyToStart, setReadyToStart] = useState<boolean>(false);
     useEffect(() => {
-        setRouletteStatus(dashboard.rouletteStatus);
+        if (dashboard.playerCount >= 2) {
+            setReadyToStart(true);
+        }
+        else {
+            setReadyToStart(false);
+        }
+    }, [dashboard.playerCount]);
+
+    useEffect(() => {
+        if (!readyToStart || !rouletteStatus) {
+            setRouletteStatus(dashboard.rouletteStatus);
+        }
     }, [dashboard.rouletteStatus]);
 
     // Animate rouletteStatus opacity
@@ -36,7 +47,7 @@ export default function Header() {
     useEffect(() => {
         let timerID: ReturnType<typeof setInterval> | null = null;
 
-        if (dashboard.playerCount >= 2 && rouletteStatus) {
+        if (readyToStart && rouletteStatus) {
             setTimeLeftToDraw(timeToDraw); // reset timer
             timerID = setInterval(() => {
                 setTimeLeftToDraw((prev) => {
@@ -55,7 +66,7 @@ export default function Header() {
         return () => {
             if (timerID) clearInterval(timerID);
         };
-    }, [dashboard.playerCount, rouletteStatus]);
+    }, [readyToStart, rouletteStatus]);
 
     // Draw winner
     async function drawTheWinner() {
