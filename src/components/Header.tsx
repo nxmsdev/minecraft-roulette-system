@@ -3,9 +3,10 @@ import { useEffect, useState } from "react";
 import ShowWinner from "./ShowWinner.tsx";
 import RouletteStatus from "./RouletteStatus.tsx";
 import { useDashboard } from "../hooks/useDashboard.ts";
+import {useViewerConfig } from "../hooks/useViewerConfig.ts";
 
 export default function Header() {
-    const serverName = "RapySMP";
+    let servername = useViewerConfig().servername;
 
     const dashboard = useDashboard();
 
@@ -18,7 +19,7 @@ export default function Header() {
     const [winnerOpacity, setWinnerOpacity] = useState<number>(0);
     const [winnerAnimationDone, setWinnerAnimationDone] = useState(false);
 
-    const timeToDraw = 90;
+    const timeToDraw = useViewerConfig().timeToDraw;
     const showWinnerBeforeFade = 3;
 
     // Update rouletteStatus when dashboard changes
@@ -111,7 +112,7 @@ export default function Header() {
             </div>
 
             <header className="header">
-                <div className="header_title">Ruletka {serverName}</div>
+                <div className="header_title">Ruletka {servername}</div>
                 <div className="header_counter">
                     <div id="grey_text">Losowanie za: </div>
                     <div id="yellow_text">

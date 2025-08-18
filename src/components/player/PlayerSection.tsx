@@ -1,9 +1,10 @@
 ﻿import "./PlayerSection.css";
 import PlayerContainer from "./PlayerContainer.tsx";
 import { useDashboard } from "../../hooks/useDashboard.ts";
+import {useViewerConfig} from "../../hooks/useViewerConfig.ts";
 
 export default function PlayerSection() {
-    const payUsername = "WilgotnyArtur";
+    const nickname = useViewerConfig().nickname;
     const amountOfBetsShown = 30;
 
     const dashboard = useDashboard();
@@ -30,7 +31,7 @@ export default function PlayerSection() {
                 </div>
                 <div className="payment_command">
                     <div id="grey_text">Postaw zaklad przez:</div>
-                    <div id="yellow_text">/pay {payUsername} {"<kwota>"}</div>
+                    <div id="yellow_text">/pay {nickname} {"<kwota>"}</div>
                 </div>
             </div>
             <div className="player_containers">{playerContainers}</div>

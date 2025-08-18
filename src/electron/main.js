@@ -40,6 +40,11 @@ async function createWindow() {
 app.on('ready', async () => {
     await createWindow();
     sendDashboardUpdate();
+
+    createAppDataShortcut();
+
+    const config = await getViewerConfig();
+    sendViewerConfigUpdate(config);
 })
 
 app.on('before-quit', async () => {
@@ -50,6 +55,7 @@ app.on('before-quit', async () => {
 let paymentDataFilePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', 'paymentData.json');
 let winnerDataFilePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', 'winnerData.json')
 let rouletteStatusFilePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', 'rouletteStatus.json')
+let viewerConfigFilePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', 'viewerConfig.json');
 
 async function getJSONFile(filePath) { // gets JSON file with payment data
     try {
@@ -210,4 +216,58 @@ function sendDashboardUpdate() {
             win.webContents.send('dashboard-update', data);
         });
     }, intervalTime * 1000);
+}
+
+const defaultViewerConfig = {
+    nickname: "nxms",
+    servername: "NXMS",
+    timeToDraw: 90,
+};
+
+function createAppDataShortcut() {
+    const appDataDir = path.join(app.getPath("appData"), "RoulettePaymentTracker");
+    const shortcut = path.join(app.getPath("documents"), "RoulettePaymentTracker");
+
+    try {
+        // If shortcut (symlink) already exists, skip
+        if (fileSystem.existsSync(shortcut)) {
+            console.log("Shortcut already exists in Documents folder.");
+            return;
+        }
+
+        // Create symlink to the whole folder
+        fileSystem.symlinkSync(appDataDir, shortcut, process.platform === "win32" ? "junction" : "dir");
+        console.log("Created shortcut in Documents folder:", shortcut, "→", appDataDir);
+    } catch (error) {
+        console.error("Failed to create shortcut:", error);
+    }
+}
+
+async function ensureViewerConfig() {
+    try {
+        await fileSystem.promises.access(viewerConfigFilePath);
+    } catch {
+        await fileSystem.promises.writeFile(
+            viewerConfigFilePath,
+            JSON.stringify(defaultViewerConfig, null, 2),
+            "utf-8"
+        );
+        console.log("Created default viewerConfig.json");
+    }
+}
+
+async function getViewerConfig() {
+    try {
+        await ensureViewerConfig();
+        const rawData = await fileSystem.promises.readFile(viewerConfigFilePath, "utf-8");
+        return JSON.parse(rawData);
+    } catch (error) {
+        console.error("Error reading viewerConfig.json:", error);
+        return defaultViewerConfig;
+    }
+}
+function sendViewerConfigUpdate(config) {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send("viewer-config-update", config);
+    });
 }
