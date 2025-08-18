@@ -17,10 +17,15 @@ interface ViewerConfig {
     timeToDraw: number,
 }
 
+interface DrawTheWinner {
+    winner: string;
+    winAmount: number;
+}
+
 declare global {
     interface Window {
         electronAPI: {
-            drawTheWinner: () => Promise<string>;
+            drawTheWinner: () => Promise<DrawTheWinner>;
             onDashboardUpdate: (callback: (data: DashboardData) => void) => void;
             onViewerConfigUpdate: (callback: (data: ViewerConfig) => void) => void;
             removeViewerConfigUpdate?: (callback: (data: ViewerConfig) => void) => void;

@@ -179,7 +179,7 @@ ipcMain.handle('draw-the-winner', async () => {
         sendDashboardUpdate();
     }
 
-    return winner;
+    return { winner, winAmount };
 });
 
 let rouletteStatus = false;

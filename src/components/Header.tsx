@@ -42,7 +42,7 @@ export default function Header() {
                 setTimeLeftToDraw((prev) => {
                     if (prev <= 1) {
                         setWinnerAmount(dashboard.winAmount);
-                        drawTheWinner();
+                        drawTheWinner().catch(console.error);
                         return timeToDraw; // reset timer
                     }
                     return prev - 1;
@@ -60,8 +60,9 @@ export default function Header() {
     // Draw winner
     async function drawTheWinner() {
         if (window.electronAPI && window.electronAPI.drawTheWinner) {
-            const name = await window.electronAPI.drawTheWinner();
-            setWinner(name);
+            const result = await window.electronAPI.drawTheWinner();
+            setWinner(result.winner);
+            setWinnerAmount(result.winAmount);
             setWinnerOpacity(1);
         }
     }
