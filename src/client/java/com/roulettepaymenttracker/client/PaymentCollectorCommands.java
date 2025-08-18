@@ -93,6 +93,8 @@ public class PaymentCollectorCommands {
     }
 
     public void loadConfigFromJSON() {
+        MinecraftClient client = MinecraftClient.getInstance();
+
         try {
             if (!Files.exists(paymentCollectorConfigFilePath.getParent())) {
                 System.out.println("Creating directories for paymentCollectorConfig.json file.");
@@ -116,14 +118,26 @@ public class PaymentCollectorCommands {
 
             try (BufferedWriter fileWriter = Files.newBufferedWriter(paymentCollectorConfigFilePath)) {
                 gson.toJson(jsonObject, fileWriter);
+
                 System.out.println("Succesfully created paymentCollectorConfig.json file.");
-                actionBarNotification.sendMessage("Saved data to config.", "§a");
+
+                actionBarNotification.sendMessage("Created default config file.", "§e");
                 playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+
+                if (client != null && client.player != null) {
+                    client.player.sendMessage(Text.literal("§ePayment collector config not found. Created config file with default values."), false);
+                }
+
             } catch (IOException exception) {
                 System.out.println("Failed to create paymentCollectorConfig.json file: " + exception.getMessage());
-            }
 
-            return;
+                actionBarNotification.sendMessage("Failed to create default config file.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+
+                if (client != null && client.player != null) {
+                    client.player.sendMessage(Text.literal("§4Payment collector config not found. Failed to create config file with default values."), false);
+                }
+            }
         }
 
         try {
@@ -131,8 +145,8 @@ public class PaymentCollectorCommands {
                 String jsonString = Files.readString(paymentCollectorConfigFilePath);
                 JsonObject json = gson.fromJson(jsonString, JsonObject.class);
 
-                if (json.has("positionOfSpecifiedComponent"))
-                    positionOfSpecifiedWord = json.get("positionOfSpecifiedComponent").getAsInt();
+                if (json.has("positionOfSpecifiedWord"))
+                    positionOfSpecifiedWord = json.get("positionOfSpecifiedWord").getAsInt();
 
                 if (json.has("specifiedComponentWord"))
                     specifiedComponentWord = json.get("specifiedComponentWord").getAsString();
@@ -147,9 +161,20 @@ public class PaymentCollectorCommands {
                     paymentMessageComponentsSize = json.get("paymentMessageComponentsSize").getAsInt();
 
                 System.out.println("Successfully loaded payment collector config.");
+
+                if (client != null && client.player != null) {
+                    client.player.sendMessage(Text.literal("§aSuccessfully loaded payment collector config."), false);
+                }
             }
         } catch (IOException exception) {
             System.err.println("Failed to load payment collector config: " + exception.getMessage());
+
+            actionBarNotification.sendMessage("Failed to load payment collector config.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+
+            if (client != null && client.player != null) {
+                client.player.sendMessage(Text.literal("§4Failed to load payment collector config."), false);
+            }
         }
     }
 
@@ -160,6 +185,13 @@ public class PaymentCollectorCommands {
             dispatcher.register(
                     literal("roulette")
                             .then(literal("collectorconfig")
+                                    .then(literal("reload")
+                                            .executes(context -> {
+                                                loadConfigFromJSON();
+
+                                                return 1;
+                                            })
+                                    )
                                     .then(literal("info")
                                             .executes(context -> {
                                                 MinecraftClient client = MinecraftClient.getInstance();

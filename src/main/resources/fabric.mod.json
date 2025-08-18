@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "roulettepaymenttracker",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "name": "RoulettePaymentTracker",
   "description": "",
   "authors": ["nxms"],
