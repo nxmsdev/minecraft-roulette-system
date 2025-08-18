@@ -2,16 +2,20 @@
 
 export {};
 
+interface DashboardData {
+    playerData: { username: string, amount: number }[];
+    playerCount: number;
+    sumAmount: number;
+    winAmount: number;
+    taxAmount: number;
+    rouletteStatus: boolean;
+}
+
 declare global {
     interface Window {
         electronAPI: {
-            getPlayerData: () => Promise<{ username: string, amount: number }[]>;
-            getSumAmount: () => Promise<number>;
-            getPlayerCount: () => Promise<number>;
             drawTheWinner: () =>  Promise<string>;
-            getRouletteStatus: () => Promise<boolean>;
-            getWinAmount: () => Promise<number>;
-            getTaxAmount: () => Promise<number>;
+            onDashboardUpdate: (callback: (data: DashboardData) => void) => void;
         };
     }
 }

@@ -8,7 +8,7 @@ function getPreloadPath() {
 }
 
 let mainWindow = null;
-let windowSizeMultiplier = 1.5;
+const windowSizeMultiplier = 1.3;
 
 // creates the main application window and loads the frontend HTML
 async function createWindow() {
@@ -17,6 +17,9 @@ async function createWindow() {
         width: 1280 * windowSizeMultiplier,
         height: 720 * windowSizeMultiplier,
         autoHideMenuBar: true, // hide the menu bar unless Alt is pressed
+        resizable: false,
+        minimizable: false,
+        maximizable: false,
         webPreferences: {
             preload: getPreloadPath(), // preloads preload.js file
             contextIsolation: true, // isolates renderer context for security
@@ -36,6 +39,7 @@ async function createWindow() {
 // when Electron has finished initialization, create the window
 app.on('ready', async () => {
     await createWindow();
+    sendDashboardUpdate();
 })
 
 app.on('before-quit', async () => {
@@ -97,47 +101,29 @@ let playerData = [];
 let playerCount = 0;
 async function fetchPlayerData() {
     try {
-        const jsonData = await getJSONFile(paymentDataFilePath); // read the JSON file contents as a string
-        const playerDataArray = JSON.parse(jsonData); // parse the JSON string into an object/array
+        const jsonData = await getJSONFile(paymentDataFilePath);
+        const playerDataArray = JSON.parse(jsonData);
 
-        // check if parsed data is an array
         if (Array.isArray(playerDataArray)) {
-            if (playerDataArray.length === 0) { //
-                playerData = [];
-            }
-            else {
-                const equalityFunction = (oldData, newData) => newData.amount === oldData.amount;
-                const sortFunction = (a, b) => b.amount - a.amount; // largest first
-                playerData = updateData(playerData, playerDataArray, "username", equalityFunction, sortFunction);
-            }
-
+            const equalityFunction = (oldData, newData) => newData.amount === oldData.amount;
+            const sortFunction = (a, b) => b.amount - a.amount; // largest first
+            playerData = updateData(playerData, playerDataArray, "username", equalityFunction, sortFunction);
             playerCount = playerData.length;
-        }
-        else {
+        } else {
             console.error('JSON is not an array');
+            playerData = [];
         }
-    }
-    catch (error) {
+    } catch (error) {
         console.error("Error fetching or parsing data:", error);
-        playerData = []
+        playerData = [];
     }
-}
 
-ipcMain.handle('get-player-data', async () => {
-    await fetchPlayerData();
     return playerData;
-});
-
-ipcMain.handle('get-player-count', async () => {
-    return playerCount;
-})
+}
 
 function getSumAmount(data) { // collect sum of all payment amounts
     return data.reduce((acc, player) => acc + player.amount, 0); // return amount
 }
-ipcMain.handle('get-sum-amount', async () => {
-    return getSumAmount(playerData);
-});
 
 // draw a winner
 function getWinnerFromDraw() {
@@ -165,33 +151,31 @@ async function saveWinnerToFile(winner, winAmount, filePath) {
 }
 
 let winAmountPrecentage = 0.92;
-ipcMain.handle('get-win-amount', async () => {
+function getWinAmount() {
     return parseFloat(Number(getSumAmount(playerData) * winAmountPrecentage).toFixed(0));
-})
+}
 
 let taxAmountPrecentage = 0.08;
-ipcMain.handle('get-tax-amount', async () => {
+function getTaxAmount() {
     return parseFloat(Number(getSumAmount(playerData) * taxAmountPrecentage).toFixed(0));
-});
+}
 
 ipcMain.handle('draw-the-winner', async () => {
     const winner = getWinnerFromDraw();
-    const winAmount = Number(getSumAmount(playerData) * winAmountPrecentage).toFixed(0);
+    const winAmount = getWinAmount();
 
     if (winner) {
-        // save winner's username to the JSON file
-        await saveWinnerToFile(winner, parseFloat(winAmount), winnerDataFilePath);
-
-        // clear the JSON file with payment data
+        await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
         await clearJSONDataFile(paymentDataFilePath, "[]");
 
-        // clear variables connected with JSON file reading
         playerData = [];
         playerCount = 0;
+
+        sendDashboardUpdate();
     }
 
     return winner;
-})
+});
 
 let rouletteStatus = false;
 async function fetchRouletteStatus() {
@@ -206,7 +190,24 @@ async function fetchRouletteStatus() {
     }
 }
 
-ipcMain.handle('get-roulette-status', async () => {
-    await fetchRouletteStatus();
-    return rouletteStatus;
-});
+function sendDashboardUpdate() {
+    const intervalTime = 0.5;
+    setInterval(async () => {
+        await fetchPlayerData();
+        await fetchRouletteStatus();
+
+        const data = {
+            playerData,
+            playerCount,
+            sumAmount: getSumAmount(playerData),
+            winAmount: getWinAmount(),
+            taxAmount: getTaxAmount(),
+            rouletteStatus
+        };
+
+        // Send to all renderer windows
+        BrowserWindow.getAllWindows().forEach(win => {
+            win.webContents.send('dashboard-update', data);
+        });
+    }, intervalTime * 1000);
+}
