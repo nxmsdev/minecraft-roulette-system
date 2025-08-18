@@ -8,14 +8,13 @@ function getPreloadPath() {
 }
 
 let mainWindow = null;
-const windowSizeMultiplier = 1.3;
 
 // creates the main application window and loads the frontend HTML
 async function createWindow() {
 
     mainWindow = new BrowserWindow({
-        width: 1280 * windowSizeMultiplier,
-        height: 720 * windowSizeMultiplier,
+        width: 1670,
+        height: 900,
         autoHideMenuBar: true, // hide the menu bar unless Alt is pressed
         resizable: false,
         minimizable: false,
