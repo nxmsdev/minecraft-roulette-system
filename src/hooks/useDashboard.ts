@@ -1,5 +1,4 @@
-﻿// useDashboard.ts
-import { useEffect, useState } from "react";
+﻿import { useEffect, useState } from "react";
 
 export interface DashboardData {
     playerData: { username: string; amount: number }[];
@@ -11,7 +10,7 @@ export interface DashboardData {
 }
 
 export function useDashboard() {
-    const [dashboard, setDashboard] = useState<DashboardData>({
+    const [data, setData] = useState<DashboardData>({
         playerData: [],
         playerCount: 0,
         sumAmount: 0,
@@ -23,10 +22,10 @@ export function useDashboard() {
     useEffect(() => {
         if (!window.electronAPI?.onDashboardUpdate) return;
 
-        window.electronAPI.onDashboardUpdate((data: DashboardData) => {
-            setDashboard(data);
+        window.electronAPI.onDashboardUpdate((returnedData: DashboardData) => {
+            setData(returnedData);
         });
     }, []);
 
-    return dashboard;
+    return data;
 }

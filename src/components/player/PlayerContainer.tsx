@@ -8,7 +8,7 @@ type PlayerContainerProps = {
 
 export default function PlayerContainer({ username, amount, winChance } : PlayerContainerProps) {
 
-    let imageURL: string = `https://mc-heads.net/avatar/${username}` ;
+    let imageURL: string = `https://mc-heads.net/avatar/${username}`;
 
     return (
         <div className={"player_container"}>

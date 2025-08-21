@@ -165,6 +165,11 @@ function getTaxAmount() {
     return parseFloat(Number(getSumAmount(playerData) * taxAmountPrecentage).toFixed(0));
 }
 
+let lastWinner = "";
+let lastWinAmount = 0;
+let lastWinnerChance = 0;
+
+let bestWinners = [];
 ipcMain.handle('draw-the-winner', async () => {
     const winner = getWinnerFromDraw();
     const winAmount = getWinAmount();
@@ -172,6 +177,34 @@ ipcMain.handle('draw-the-winner', async () => {
     if (winner) {
         await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
         await clearJSONDataFile(paymentDataFilePath, "[]");
+
+        lastWinner = winner;
+        lastWinAmount = winAmount;
+
+        const totalAmount = getSumAmount(playerData);
+        const player = playerData.find(p => p.username === lastWinner);
+        if (player) {
+            lastWinnerChance = Number((player.amount / totalAmount) * 100).toFixed(2);
+        }
+
+        const existing = bestWinners.find(w => w.username === lastWinner);
+        if (existing) {
+            if (winAmount > existing.amount) {
+                existing.amount = winAmount;
+                existing.chance = player ? Number((player.amount / totalAmount) * 100).toFixed(2) : 0;
+            }
+        } else {
+            bestWinners.push({
+                username: lastWinner,
+                amount: winAmount,
+                chance: player ? Number((player.amount / totalAmount) * 100).toFixed(2) : 0
+            });
+        }
+
+        bestWinners.sort((a, b) => b.amount - a.amount);
+
+        sendLastWinnerUpdate();
+        sendBestWinners();
 
         playerData = [];
         playerCount = 0;
@@ -181,6 +214,31 @@ ipcMain.handle('draw-the-winner', async () => {
 
     return { winner, winAmount };
 });
+
+
+function sendLastWinnerUpdate() {
+    const data = {
+        lastWinner,
+        lastWinAmount,
+        lastWinnerChance
+    };
+
+    // Send to all renderer windows
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('last-winner-update', data);
+    });
+}
+
+function sendBestWinners() {
+    const data = {
+        winners: bestWinners
+    };
+
+    // Send to all renderer windows
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('best-winners-update', data);
+    });
+}
 
 let rouletteStatus = false;
 async function fetchRouletteStatus() {

@@ -106,7 +106,7 @@ export default function Header() {
                 className="show_winner"
                 style={{ opacity: winnerOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}
             >
-                <ShowWinner username={winner} amount={winnerAmount} />
+                <ShowWinner username={winner} amount={winnerAmount}/>
             </div>
 
             <div
