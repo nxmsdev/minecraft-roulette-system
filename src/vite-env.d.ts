@@ -15,6 +15,7 @@ interface ViewerConfig {
     nickname: string;
     servername: string;
     timeToDraw: number,
+    taxPercentage: number;
 }
 
 interface DrawTheWinnerData {

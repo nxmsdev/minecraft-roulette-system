@@ -4,6 +4,7 @@ interface ViewerConfig {
     nickname: string;
     servername: string;
     timeToDraw: number;
+    taxPercentage: number;
 }
 
 export function useViewerConfig() {
@@ -11,6 +12,7 @@ export function useViewerConfig() {
         nickname: "nxms",
         servername: "NXMS",
         timeToDraw: 90,
+        taxPercentage: 10
     });
 
     useEffect(() => {

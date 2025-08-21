@@ -1,10 +1,28 @@
-﻿import {app, BrowserWindow, ipcMain} from 'electron';
+﻿import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from 'path';
 import * as fileSystem from "node:fs";
 
 // returns the absolute path to the preload script
 function getPreloadPath() {
     return path.join(app.getAppPath(), 'src', 'electron', 'preload.js');
+}
+
+let winAmountPercentage = 0;
+function getWinAmount() {
+    return Number(getSumAmount(playerData) * winAmountPercentage).toFixed(0);
+}
+
+let taxAmountPrecentage = 0;
+function getTaxAmount() {
+    return Number(getSumAmount(playerData) * taxAmountPrecentage).toFixed(0);
+}
+
+async function initConfig() {
+    const config = await getViewerConfig();
+    sendViewerConfigUpdate(config);
+
+    taxAmountPrecentage = (config.taxPercentage ?? 8) / 100;
+    winAmountPercentage = 1 - taxAmountPrecentage; // ensures winAmount accounts for tax
 }
 
 let mainWindow = null;
@@ -44,6 +62,8 @@ app.on('ready', async () => {
 
     const config = await getViewerConfig();
     sendViewerConfigUpdate(config);
+
+    await initConfig();
 })
 
 app.on('before-quit', async () => {
@@ -153,16 +173,6 @@ async function saveWinnerToFile(winner, winAmount, filePath) {
     } catch (error) {
         console.error("Failed to save winner file:", error);
     }
-}
-
-let winAmountPrecentage = 0.92;
-function getWinAmount() {
-    return parseFloat(Number(getSumAmount(playerData) * winAmountPrecentage).toFixed(0));
-}
-
-let taxAmountPrecentage = 0.08;
-function getTaxAmount() {
-    return parseFloat(Number(getSumAmount(playerData) * taxAmountPrecentage).toFixed(0));
 }
 
 let lastWinner = "";
@@ -279,6 +289,7 @@ const defaultViewerConfig = {
     nickname: "nxms",
     servername: "NXMS",
     timeToDraw: 90,
+    taxPercentage: 10,
 };
 
 function createAppDataShortcut() {

@@ -131,7 +131,7 @@ export default function Header() {
                     </div>
                     <div className="right_cont_text">
                         <div id="grey_text">Podatek:</div>
-                        <div>{dashboard.taxAmount}$ (8%)</div>
+                        <div>{dashboard.taxAmount}$ ({viewerConfig.taxPercentage}%)</div>
                     </div>
                     <div className="right_cont_text">
                         <div id="grey_text">Pula:</div>
