@@ -185,33 +185,33 @@ ipcMain.handle('draw-the-winner', async () => {
     const winAmount = getWinAmount();
 
     if (winner) {
-        await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
-        await clearJSONDataFile(paymentDataFilePath, "[]");
+        const totalAmount = getSumAmount(playerData);
+        const player = playerData.find(p => p.username === winner);
+
+        const chance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
 
         lastWinner = winner;
         lastWinAmount = winAmount;
+        lastWinnerChance = chance;
 
-        const totalAmount = getSumAmount(playerData);
-        const player = playerData.find(p => p.username === lastWinner);
-        if (player) {
-            lastWinnerChance = Number((player.amount / totalAmount) * 100).toFixed(2);
-        }
-
-        const existing = bestWinners.find(w => w.username === lastWinner);
+        const existing = bestWinners.find(w => w.username === winner);
         if (existing) {
             if (winAmount > existing.amount) {
                 existing.amount = winAmount;
-                existing.chance = player ? Number((player.amount / totalAmount) * 100).toFixed(2) : 0;
+                existing.chance = chance;
             }
         } else {
             bestWinners.push({
-                username: lastWinner,
+                username: winner,
                 amount: winAmount,
-                chance: player ? Number((player.amount / totalAmount) * 100).toFixed(2) : 0
+                chance
             });
         }
 
         bestWinners.sort((a, b) => b.amount - a.amount);
+
+        await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
+        await clearJSONDataFile(paymentDataFilePath, "[]");
 
         sendLastWinnerUpdate();
         sendBestWinners();
