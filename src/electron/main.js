@@ -194,17 +194,17 @@ ipcMain.handle('draw-the-winner', async () => {
         lastWinAmount = winAmount;
         lastWinnerChance = chance;
 
-        const existing = bestWinners.find(w => w.username === winner);
+        const existing = bestWinners.find(w => w.username === lastWinner);
         if (existing) {
             if (winAmount > existing.amount) {
                 existing.amount = winAmount;
-                existing.chance = chance;
+                existing.chance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
             }
         } else {
             bestWinners.push({
-                username: winner,
+                username: lastWinner,
                 amount: winAmount,
-                chance
+                chance: player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0
             });
         }
 

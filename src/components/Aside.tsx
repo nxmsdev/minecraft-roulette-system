@@ -4,7 +4,6 @@ import {useBestWinners} from "../hooks/useBestWinners.ts";
 
 export default function Aside() {
     let lastWinnerData = useLastWinner();
-    let lastWinnerHead: string = `https://mc-heads.net/avatar/${lastWinnerData.lastWinner}`;
 
     let bestWinnersData = useBestWinners();
 
@@ -26,7 +25,7 @@ export default function Aside() {
             <div className="last_round_result">
                 <div className="title">Wynik ostatniej rundy:</div>
                 <div className="list" id="grey_text">
-                    <img className={"aside_player_head"} src={lastWinnerHead} alt="player_head"></img>
+                    <img className={"aside_player_head"} src={`https://mc-heads.net/avatar/${lastWinnerData.lastWinner}`} alt="player_head"></img>
                     <div className="last_winner_name">
                         <div id="grey_text">Ostatni wygrany:</div>
                         <div id="yellow_text">{lastWinnerData.lastWinner || "Brak wygranego"}</div>
