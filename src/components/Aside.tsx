@@ -8,7 +8,6 @@ export default function Aside() {
     let bestWinnersData = useBestWinners();
 
     const bestWinners = bestWinnersData.winners
-        .slice(0, 3)
         .map((winner, _index) => (
             <div className="best_winners" key={winner.username}>
                 <img className={"aside_player_head"} src={`https://mc-heads.net/avatar/${winner.username}`} alt="player_head"></img>

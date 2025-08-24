@@ -9,12 +9,12 @@ function getPreloadPath() {
 
 let winAmountPercentage = 0;
 function getWinAmount() {
-    return Number(getSumAmount(playerData) * winAmountPercentage).toFixed(0);
+    return Math.round(getSumAmount(playerData) * winAmountPercentage);
 }
 
 let taxAmountPrecentage = 0;
 function getTaxAmount() {
-    return Number(getSumAmount(playerData) * taxAmountPrecentage).toFixed(0);
+    return Math.round(getSumAmount(playerData) * taxAmountPrecentage);
 }
 
 async function initConfig() {
@@ -167,55 +167,37 @@ function getWinnerFromDraw() {
 // async function to save winner info to a JSON file
 async function saveWinnerToFile(winner, winAmount, filePath) {
     try {
-        const winnerUsername = { username: winner, amount: winAmount};
-        await fileSystem.promises.writeFile(filePath, JSON.stringify(winnerUsername, winAmount), 'utf-8');
+        const winnerData = { username: winner, amount: winAmount };
+        await fileSystem.promises.writeFile(filePath, JSON.stringify(winnerData), 'utf-8');
         console.log("Saved winner to file:", filePath);
     } catch (error) {
         console.error("Failed to save winner file:", error);
     }
 }
 
-let lastWinner = "";
-let lastWinAmount = 0;
-let lastWinnerChance = 0;
-
 let bestWinners = [];
+function updateBestWinners(list, winner, winAmount, winChance) {
+    list.push({ username: winner, amount: winAmount, chance: winChance });
+    list.sort((a, b) => b.amount - a.amount);
+}
+
 ipcMain.handle('draw-the-winner', async () => {
     const winner = getWinnerFromDraw();
     const winAmount = getWinAmount();
+    const totalAmount = getSumAmount(playerData);
 
     if (winner) {
-        const totalAmount = getSumAmount(playerData);
-        const player = playerData.find(p => p.username === winner);
-
-        const chance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
-
-        lastWinner = winner;
-        lastWinAmount = winAmount;
-        lastWinnerChance = chance;
-
-        const existing = bestWinners.find(w => w.username === lastWinner);
-        if (existing) {
-            if (winAmount > existing.amount) {
-                existing.amount = winAmount;
-                existing.chance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
-            }
-        } else {
-            bestWinners.push({
-                username: lastWinner,
-                amount: winAmount,
-                chance: player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0
-            });
-        }
-
-        bestWinners.sort((a, b) => b.amount - a.amount);
-
         await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
+
+        const player = playerData.find(player => player.username === winner);
+        const winChance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
+
+        updateBestWinners(bestWinners, winner, winAmount, winChance);
+
+        sendLastWinnerUpdate({ winner, winAmount, winChance });
+        sendBestWinners(bestWinners);
+
         await clearJSONDataFile(paymentDataFilePath, "[]");
-
-        sendLastWinnerUpdate();
-        sendBestWinners();
-
         playerData = [];
         playerCount = 0;
 
@@ -225,24 +207,21 @@ ipcMain.handle('draw-the-winner', async () => {
     return { winner, winAmount };
 });
 
-
-function sendLastWinnerUpdate() {
+function sendLastWinnerUpdate({ winner, winAmount, winChance }) {
     const data = {
-        lastWinner,
-        lastWinAmount,
-        lastWinnerChance
+        lastWinner: winner,
+        lastWinAmount: winAmount,
+        lastWinnerChance: winChance
     };
 
-    // Send to all renderer windows
     BrowserWindow.getAllWindows().forEach(win => {
         win.webContents.send('last-winner-update', data);
     });
 }
 
-function sendBestWinners() {
-    const data = {
-        winners: bestWinners
-    };
+
+function sendBestWinners(bestWinners) {
+    const data = { winners: bestWinners.slice(0, 3) };
 
     // Send to all renderer windows
     BrowserWindow.getAllWindows().forEach(win => {
