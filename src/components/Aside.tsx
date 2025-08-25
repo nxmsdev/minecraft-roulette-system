@@ -9,7 +9,7 @@ export default function Aside() {
 
     const bestWinners = bestWinnersData.winners
         .map((winner, _index) => (
-            <div className="best_winners" key={winner.username}>
+            <div className="best_winners" key={`${winner.username}-${winner.amount}-${winner.chance}`}>
                 <img className={"aside_player_head"} src={`https://mc-heads.net/avatar/${winner.username}`} alt="player_head"></img>
                 <div className="best_winner_name" id="grey_text">{winner.username}</div>
                 <div id="grey_text">|</div>
