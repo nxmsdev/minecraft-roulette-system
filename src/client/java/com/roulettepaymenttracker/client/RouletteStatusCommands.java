@@ -92,6 +92,7 @@ public class RouletteStatusCommands {
                                                 if (rouletteStatus.get()) {
                                                     rouletteStatus.set(false);
                                                     saveSatusToJSON();
+                                                    MinecraftClient.getInstance().player.sendMessage(Text.literal("§4Roulette status changed to: false."), false);
                                                 }
                                                 else {
                                                     MinecraftClient.getInstance().player.sendMessage(Text.literal(alreadyChangedText + rouletteStatus.get()), false);

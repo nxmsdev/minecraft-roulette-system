@@ -31,7 +31,7 @@ public class PaymentDataManager {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2); // thread pool for database operations
 
-    public CompletableFuture<Void> saveData(String paymentUsername, int paymentAmount) {
+    public CompletableFuture<Void> saveData(String paymentUsername, long paymentAmount) {
 
         return CompletableFuture.runAsync(() -> { // runs the operation on background thread
             PlayerDataHolder newPlayerData = new PlayerDataHolder(paymentUsername, paymentAmount); // hold new player's data
@@ -83,7 +83,7 @@ public class PaymentDataManager {
                     PlayerDataHolder player = listOfPlayerData.get(index);
 
                     if (player.username().equals(paymentUsername)) {
-                        int updatedAmount = player.amount() + paymentAmount; // updates payment amount
+                        long updatedAmount = player.amount() + paymentAmount; // updates payment amount
                         PlayerDataHolder updatedPlayer = new PlayerDataHolder(paymentUsername, updatedAmount); // creates object with updates payment data
 
                         listOfPlayerData.set(index, updatedPlayer); // puts updated player data in the place of the old data

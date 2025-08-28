@@ -16,24 +16,26 @@ public class PaymentCollector {
     private static final PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
 
     public String paymentUsername; // name of the user that sent the payment
-    public int paymentAmount; // amount that user sent in payment
+    public long paymentAmount; // amount that user sent in payment
 
-    private int parseAmount(String rawAmount) {
-        // Remove $ but keep decimal points
+    private long parseAmount(String rawAmount) {
         rawAmount = rawAmount.replaceAll("[$]", "");
 
-        if (rawAmount.matches("(?i).*k$")) {  // k or K
+        if (rawAmount.matches("(?i).*k$")) {
             double value = Double.parseDouble(rawAmount.replaceAll("(?i)k$", ""));
-            return (int) (value * 1000);  // 1.2K -> 1200, 1.25K -> 1250
-        } else if (rawAmount.matches("(?i).*(mln|m)$")) {  // m, M, mln, MLN
+            return (long) (value * 1000);
+        } else if (rawAmount.matches("(?i).*(mln|m)$")) {
             double value = Double.parseDouble(rawAmount.replaceAll("(?i)(mln|m)$", ""));
-            return (int) (value * 1_000_000);  // 1.5M -> 1_500_000
+            return (long) (value * 1_000_000);
+        } else if (rawAmount.matches("(?i).*(b)$")) {
+            double value = Double.parseDouble(rawAmount.replaceAll("(?i)(mln|m)$", ""));
+            return (long) (value * 1_000_000_000);
         } else {
-            return (int) Double.parseDouble(rawAmount);  // plain number
+            return (long) Double.parseDouble(rawAmount);
         }
     }
 
-    public void registerListener(BiConsumer<String, Integer> onPaymentReceived) {
+    public void registerListener(BiConsumer<String, Long> onPaymentReceived) {
         ClientReceiveMessageEvents.GAME.register((text, overlay) -> {
             List<Text> paymentComponents = new ArrayList<>();
             collectAllTextComponents(text, paymentComponents); // collects all components
@@ -51,7 +53,7 @@ public class PaymentCollector {
 
                 String messageSpecifiedWord = componentArray[paymentCollectorCommands.getPositionOfSpecifiedWord()];
                 String messageUsername = componentArray[paymentCollectorCommands.getPositionOfUsername()];
-                int messageAmount = parseAmount(componentArray[paymentCollectorCommands.getPositionOfAmount()]);
+                long messageAmount = parseAmount(componentArray[paymentCollectorCommands.getPositionOfAmount()]);
                 int messageSize = componentArray.length;
 
                 for (int index = 0; index < messageSize; index++) {
