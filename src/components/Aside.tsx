@@ -1,21 +1,36 @@
 ﻿import "./Aside.css"
 import {useLastWinner} from "../hooks/useLastWinner.ts";
 import {useBestWinners} from "../hooks/useBestWinners.ts";
+import {useLuckyGuys} from "../hooks/useLuckyGuys.ts";
 
 export default function Aside() {
     let lastWinnerData = useLastWinner();
 
     let bestWinnersData = useBestWinners();
 
+    let luckyGuysData = useLuckyGuys();
+
     const bestWinners = bestWinnersData.winners
         .map((winner, _index) => (
-            <div className="best_winners" key={`${winner.username}-${winner.amount}-${winner.chance}`}>
+            <div className="best_winners" key={`winner-${winner.username}-${winner.amount}-${winner.chance}`}>
                 <img className={"aside_player_head"} src={`https://mc-heads.net/avatar/${winner.username}`} alt="player_head"></img>
                 <div className="best_winner_name" id="grey_text">{winner.username}</div>
                 <div id="grey_text">|</div>
                 <div className="best_winner_amount" id="yellow_text">{winner.amount}$</div>
                 <div id="grey_text">|</div>
                 <div className="best_winner_amount" id="grey_text">{winner.chance}%</div>
+            </div>
+        ));
+
+    const luckyGuys = luckyGuysData.winners
+        .map((winner, _index) => (
+            <div className="lucky_guys" key={`lucky-${winner.username}-${winner.amount}-${winner.chance}`}>
+                <img className={"aside_player_head"} src={`https://mc-heads.net/avatar/${winner.username}`} alt="player_head"></img>
+                <div className="lucky_guy_name" id="grey_text">{winner.username}</div>
+                <div id="grey_text">|</div>
+                <div className="lucky_guy_amount" id="yellow_text">{winner.amount}$</div>
+                <div id="grey_text">|</div>
+                <div className="lucky_guy_amount" id="grey_text">{winner.chance}%</div>
             </div>
         ));
 
@@ -41,13 +56,15 @@ export default function Aside() {
             </div>
             <div className="winners">
                 <div className="title">Najlepsze wygrane dnia:</div>
-                <div className="list" id="grey_text">
+                <div className="list">
                     {bestWinners}
                 </div>
             </div>
-            <div className="top_payments">
-                <div className="title">Najwiecej rozegranych $:</div>
-                <div className="list" id="grey_text">W przyszlosci</div>
+            <div className="lucky">
+                <div className="title">Najwieksi szczesciarze dnia:</div>
+                <div className="list">
+                    {luckyGuys}
+                </div>
             </div>
             <div className="chat">Chat</div>
         </aside>

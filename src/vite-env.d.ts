@@ -39,6 +39,16 @@ interface BestWinnersData {
     winners: BestWinner[];
 }
 
+interface LuckyGuy {
+    username: string;
+    amount: number;
+    chance: number;
+}
+
+interface LuckyGuysData {
+    winners: LuckyGuy[];
+}
+
 declare global {
     interface Window {
         electronAPI: {
@@ -46,6 +56,7 @@ declare global {
             onDashboardUpdate: (callback: (data: DashboardData) => void) => void;
             onLastWinnerUpdate: (callback: (data: LastWinnerData) => void) => void;
             onBestWinnersUpdate: (callback: (data: BestWinnersData) => void) => void;
+            onLuckyGuysUpdate: (callback: (data: LuckyGuysData) => void) => void;
             onViewerConfigUpdate: (callback: (data: ViewerConfig) => void) => void;
             removeViewerConfigUpdate?: (callback: (data: ViewerConfig) => void) => void;
             setViewerConfig?: (config: ViewerConfig) => Promise<void>;

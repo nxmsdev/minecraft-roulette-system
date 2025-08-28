@@ -181,6 +181,12 @@ function updateBestWinners(list, winner, winAmount, winChance) {
     list.sort((a, b) => b.amount - a.amount);
 }
 
+let luckyGuys = [];
+function updateLuckyGuys(list, winner, winAmount, winChance) {
+    list.push({ username: winner, amount: winAmount, chance: winChance });
+    list.sort((a, b) => a.chance - b.chance);
+}
+
 ipcMain.handle('draw-the-winner', async () => {
     const winner = getWinnerFromDraw();
     const winAmount = getWinAmount();
@@ -193,9 +199,11 @@ ipcMain.handle('draw-the-winner', async () => {
         const winChance = player ? Number(((player.amount / totalAmount) * 100).toFixed(2)) : 0;
 
         updateBestWinners(bestWinners, winner, winAmount, winChance);
+        updateLuckyGuys(luckyGuys, winner, winAmount, winChance);
 
         sendLastWinnerUpdate({ winner, winAmount, winChance });
         sendBestWinners(bestWinners);
+        sendLuckyGuys(luckyGuys);
 
         await clearJSONDataFile(paymentDataFilePath, "[]");
         playerData = [];
@@ -223,9 +231,16 @@ function sendLastWinnerUpdate({ winner, winAmount, winChance }) {
 function sendBestWinners(bestWinners) {
     const data = { winners: bestWinners.slice(0, 3) };
 
-    // Send to all renderer windows
     BrowserWindow.getAllWindows().forEach(win => {
         win.webContents.send('best-winners-update', data);
+    });
+}
+
+function sendLuckyGuys(luckyGuys) {
+    const data = { winners: luckyGuys.slice(0, 3) };
+
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send('lucky-guys-update', data);
     });
 }
 

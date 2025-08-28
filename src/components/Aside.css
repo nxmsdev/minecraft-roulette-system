@@ -9,14 +9,14 @@
     background-color: rgba(0, 0, 0, 0.3);
 }
 
-.last_round_result, .winners, .top_payments, .chat {
+.last_round_result, .winners, .lucky, .chat {
     display: flex;
     flex-direction: column;
     align-items: center;
     border-left: 2px solid rgba(0, 0, 0, 0.3);
 }
 
-.last_round_result, .winners, .top_payments {
+.last_round_result, .winners, .lucky {
     height: 25vh;
 }
 
@@ -45,7 +45,7 @@
     font-size: 2.25vmin;
 }
 
-.last_winner_name, .last_winner_amount, .last_winner_chance, .best_winners {
+.last_winner_name, .last_winner_amount, .last_winner_chance, .best_winners, .lucky_guys {
     display: flex;
     flex-direction: row;
     gap: 1vmin;
