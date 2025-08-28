@@ -4,22 +4,24 @@ type PlayerContainerProps = {
     username: string;
     amount: number;
     winChance: number;
+    translation: { [key: string]: string };
 };
 
-export default function PlayerContainer({ username, amount, winChance } : PlayerContainerProps) {
-
-    let imageURL: string = `https://mc-heads.net/avatar/${username}`;
+export default function PlayerContainer({ username, amount, winChance, translation }: PlayerContainerProps) {
+    const imageURL: string = `https://mc-heads.net/avatar/${username}`;
 
     return (
-        <div className={"player_container"}>
-            <img className={"player_head"} src={imageURL} alt="player_head"></img>
-            <div className={"player_username"} id="yellow_text">{username}</div>
-            <div className={"player_info"}>
-                <div id="grey_text">Przelew:</div>
+        <div className="player_container">
+            <img className="player_head" src={imageURL} alt="player_head" />
+            <div className="player_username" id="yellow_text">{username}</div>
+
+            <div className="player_info">
+                <div id="grey_text">{translation.amount}</div>
                 <div>{amount}$</div>
             </div>
-            <div className={"player_info"}>
-                <div id="grey_text">Szansa:</div>
+
+            <div className="player_info">
+                <div id="grey_text">{translation.chance}</div>
                 <div>{winChance}%</div>
             </div>
         </div>

@@ -13,7 +13,6 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": [
-    "src/electron/**/*.ts",
     "src/electron/main.js"
   ]
 }

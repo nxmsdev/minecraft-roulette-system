@@ -12,18 +12,102 @@ function getWinAmount() {
     return Math.round(getSumAmount(playerData) * winAmountPercentage);
 }
 
-let taxAmountPrecentage = 0;
+let taxAmountPercentage = 0;
 function getTaxAmount() {
-    return Math.round(getSumAmount(playerData) * taxAmountPrecentage);
+    return Math.round(getSumAmount(playerData) * taxAmountPercentage);
+}
+
+export const defaultTranslations = {
+    pl: {
+        headerTitle: "Ruletka",
+        drawIn: "Losowanie za:",
+        notEnoughPlayers: "Za malo graczy",
+        winAmount: "Do wygrania:",
+        tax: "Podatek:",
+        pool: "Pula:",
+        rouletteStopped: "Ruletka wstrzymana",
+        betsDisabled: "Zapisywanie zakladow wylaczone",
+        winner: "Wygrany:",
+        lastRoundResult: "Wynik ostatniej rundy:",
+        lastWinner: "Ostatni wygrany:",
+        noWinner: "Brak wygranego",
+        lastWinAmount: "Wygrana kwota:",
+        lastWinnerChance: "Szansa wygrania:",
+        bestWinners: "Najlepsze wygrane dnia:",
+        luckyGuys: "Najwieksi szczesciarze dnia:",
+        chat: "Chat",
+        topBets: "Pierwsze 30 najwiekszych zakladow:",
+        placeBetBy: "Postaw zaklad przez:",
+        betAmount: "<kwota>",
+        amount: "Przelew:",
+        chance: "Szansa:"
+    },
+    en: {
+        headerTitle: "Roulette on",
+        drawIn: "Draw in:",
+        notEnoughPlayers: "Not enough players",
+        winAmount: "To win:",
+        tax: "Tax:",
+        pool: "Pool:",
+        rouletteStopped: "Roulette paused",
+        betsDisabled: "Betting disabled",
+        winner: "Winner:",
+        lastRoundResult: "Last round result:",
+        lastWinner: "Last winner:",
+        noWinner: "No winner",
+        lastWinAmount: "Winning amount:",
+        lastWinnerChance: "Winning chance:",
+        bestWinners: "Top wins of the day:",
+        luckyGuys: "Luckiest players of the day:",
+        chat: "Chat",
+        topBets: "Top 30 biggest bets:",
+        placeBetBy: "Bet via:",
+        betAmount: "<amount>",
+        amount: "Amount:",
+        chance: "Chance:"
+    }
+};
+
+async function ensureTranslationFile(language, defaults) {
+    const filePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', `${language}.json`);
+    try {
+        await fileSystem.promises.access(filePath);
+    } catch {
+        await fileSystem.promises.mkdir(path.dirname(filePath), { recursive: true });
+        await fileSystem.promises.writeFile(filePath, JSON.stringify(defaults, null, 2), "utf-8");
+        console.log(`Created default translation file for ${language}`);
+    }
+}
+
+async function getTranslations(language) {
+    try {
+        const filePath = path.join(app.getPath('appData'), 'RoulettePaymentTracker', `${language}.json`);
+        await ensureTranslationFile(language, defaultTranslations[language] || defaultTranslations.pl);
+        const raw = await fileSystem.promises.readFile(filePath, "utf-8");
+        return JSON.parse(raw);
+    } catch (err) {
+        console.error("Translation error:", err);
+        return defaultTranslations.pl;
+    }
+}
+
+function sendTranslationsUpdate(translations) {
+    BrowserWindow.getAllWindows().forEach(win => {
+        win.webContents.send("translations-update", translations);
+    });
 }
 
 async function initConfig() {
     const config = await getViewerConfig();
     sendViewerConfigUpdate(config);
 
-    taxAmountPrecentage = (config.taxPercentage ?? 8) / 100;
-    winAmountPercentage = 1 - taxAmountPrecentage; // ensures winAmount accounts for tax
+    taxAmountPercentage = (config.taxPercentage ?? 8) / 100;
+    winAmountPercentage = 1 - taxAmountPercentage;
+
+    const translations = await getTranslations(config.language || "pl");
+    sendTranslationsUpdate(translations);
 }
+
 
 let mainWindow = null;
 
@@ -150,7 +234,7 @@ function getSumAmount(data) { // collect sum of all payment amounts
     return data.reduce((acc, player) => acc + player.amount, 0); // return amount
 }
 
-// draw a winner
+// draws a winner
 function getWinnerFromDraw() {
     const random = Math.random() * getSumAmount(playerData);
 
@@ -281,9 +365,10 @@ function sendDashboardUpdate() {
 
 const defaultViewerConfig = {
     nickname: "nxms",
-    servername: "NXMS",
+    servername: "nxms.dev",
     timeToDraw: 90,
     taxPercentage: 10,
+    language: "pl"
 };
 
 function createAppDataShortcut() {

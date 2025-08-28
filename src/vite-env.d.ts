@@ -14,8 +14,9 @@ interface DashboardData {
 interface ViewerConfig {
     nickname: string;
     servername: string;
-    timeToDraw: number,
+    timeToDraw: number;
     taxPercentage: number;
+    language: string;
 }
 
 interface DrawTheWinnerData {
@@ -49,6 +50,10 @@ interface LuckyGuysData {
     winners: LuckyGuy[];
 }
 
+interface Translations {
+    [key: string]: string;
+}
+
 declare global {
     interface Window {
         electronAPI: {
@@ -58,8 +63,9 @@ declare global {
             onBestWinnersUpdate: (callback: (data: BestWinnersData) => void) => void;
             onLuckyGuysUpdate: (callback: (data: LuckyGuysData) => void) => void;
             onViewerConfigUpdate: (callback: (data: ViewerConfig) => void) => void;
-            removeViewerConfigUpdate?: (callback: (data: ViewerConfig) => void) => void;
-            setViewerConfig?: (config: ViewerConfig) => Promise<void>;
+            removeViewerConfigUpdate: (callback: (data: ViewerConfig) => void) => void;
+            setViewerConfig: (config: ViewerConfig) => Promise<void>;
+            onTranslationsUpdate: (callback: (data: Translations) => void) => void;
         };
     }
 }

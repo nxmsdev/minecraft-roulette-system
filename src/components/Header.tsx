@@ -4,10 +4,12 @@ import ShowWinner from "./ShowWinner.tsx";
 import RouletteStatus from "./RouletteStatus.tsx";
 import { useDashboard } from "../hooks/useDashboard.ts";
 import { useViewerConfig } from "../hooks/useViewerConfig.ts";
+import { useTranslations } from "../hooks/useTranslations.ts";
 
 export default function Header() {
     const viewerConfig = useViewerConfig();
     const dashboard = useDashboard();
+    const translation = useTranslations();
 
     const [rouletteStatus, setRouletteStatus] = useState<boolean>(false);
     const [rouletteStatusOpacity, setRouletteStatusOpacity] = useState<number>(1);
@@ -20,30 +22,25 @@ export default function Header() {
 
     const [readyToStart, setReadyToStart] = useState<boolean>(false);
     const timeToDraw = viewerConfig.timeToDraw;
-    const showWinnerBeforeFade = 3; // seconds
-    const animationFadeDuration = 200; // ms
+    const showWinnerBeforeFade = 3;
+    const animationFadeDuration = 200;
 
-    // Update readyToStart based on player count
     useEffect(() => {
         setReadyToStart(dashboard.playerCount >= 2);
     }, [dashboard.playerCount]);
 
-    // Update roulette status from dashboard
     useEffect(() => {
         if (!readyToStart || !rouletteStatus) {
             setRouletteStatus(dashboard.rouletteStatus);
         }
     }, [dashboard.rouletteStatus, readyToStart, rouletteStatus]);
 
-    // Animate roulette opacity
     useEffect(() => {
-        // Fade roulette out if game inactive, otherwise fade in after winner finishes
         if (!winnerAnimating) {
             setRouletteStatusOpacity(rouletteStatus ? 0 : 1);
         }
     }, [rouletteStatus, winnerAnimating]);
 
-    // Countdown timer
     useEffect(() => {
         let timerID: ReturnType<typeof setInterval> | null = null;
 
@@ -67,7 +64,6 @@ export default function Header() {
         };
     }, [readyToStart, rouletteStatus]);
 
-    // Draw winner
     async function drawTheWinner() {
         if (window.electronAPI?.drawTheWinner) {
             const result = await window.electronAPI.drawTheWinner();
@@ -78,15 +74,11 @@ export default function Header() {
         }
     }
 
-    // Winner fade-out effect & synchronized roulette fade-in
     useEffect(() => {
         if (!winner) return;
 
         const visibleTimeout = setTimeout(() => {
-            // Start fading winner out
             setWinnerOpacity(0);
-
-            // Fade roulette in at the same time
             setRouletteStatusOpacity(rouletteStatus ? 0 : 1);
 
             const fadeEndTimeout = setTimeout(() => {
@@ -102,39 +94,33 @@ export default function Header() {
 
     return (
         <>
-            <div
-                className="show_winner"
-                style={{ opacity: winnerOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}
-            >
+            <div className="show_winner" style={{ opacity: winnerOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}>
                 <ShowWinner username={winner} amount={winnerAmount}/>
             </div>
 
-            <div
-                className="roulette_status"
-                style={{ opacity: rouletteStatusOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}
-            >
+            <div className="roulette_status" style={{ opacity: rouletteStatusOpacity, transition: `opacity ${animationFadeDuration}ms linear` }}>
                 <RouletteStatus />
             </div>
 
             <header className="header">
-                <div className="header_title">Ruletka {viewerConfig.servername}</div>
+                <div className="header_title">{translation.headerTitle} {viewerConfig.servername}</div>
                 <div className="header_counter">
-                    <div id="grey_text">Losowanie za: </div>
+                    <div id="grey_text">{translation.drawIn}</div>
                     <div id="yellow_text">
-                        {dashboard.playerCount >= 2 ? `${timeLeftToDraw}s` : "Za malo graczy"}
+                        {dashboard.playerCount >= 2 ? `${timeLeftToDraw}s` : translation.notEnoughPlayers}
                     </div>
                 </div>
                 <div className="header_right_container">
                     <div className="right_cont_text">
-                        <div>Do wygrania:</div>
+                        <div>{translation.winAmount}</div>
                         <div id="yellow_text">{dashboard.winAmount}$</div>
                     </div>
                     <div className="right_cont_text">
-                        <div id="grey_text">Podatek:</div>
+                        <div id="grey_text">{translation.tax}</div>
                         <div>{dashboard.taxAmount}$ ({viewerConfig.taxPercentage}%)</div>
                     </div>
                     <div className="right_cont_text">
-                        <div id="grey_text">Pula:</div>
+                        <div id="grey_text">{translation.pool}</div>
                         <div>{dashboard.sumAmount}$</div>
                     </div>
                 </div>

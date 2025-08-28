@@ -8,4 +8,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onLuckyGuysUpdate: (callback) => {ipcRenderer.on('lucky-guys-update', (event, data) => {callback(data);});},
     onViewerConfigUpdate: (callback) => ipcRenderer.on("viewer-config-update", (_, data) => callback(data)),
     removeViewerConfigUpdate: (callback) => ipcRenderer.removeListener("viewer-config-update", callback),
+    onTranslationsUpdate: (callback) => ipcRenderer.on("translations-update", (_, data) => callback(data)),
 });

@@ -5,14 +5,16 @@ interface ViewerConfig {
     servername: string;
     timeToDraw: number;
     taxPercentage: number;
+    language: string;
 }
 
 export function useViewerConfig() {
     const [config, setConfig] = useState<ViewerConfig>({
         nickname: "nxms",
-        servername: "NXMS",
+        servername: "nxms.dev",
         timeToDraw: 90,
-        taxPercentage: 10
+        taxPercentage: 10,
+        language: "pl"
     });
 
     useEffect(() => {
