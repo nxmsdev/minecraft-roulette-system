@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
@@ -151,7 +150,7 @@ public class SendMessageCommands {
                                                     )
                                             )
                                     )
-                                    // Test command (kept intact)
+                                    // Test command
                                     .then(literal("test")
                                             .executes(context -> {
                                                 MinecraftClient client = MinecraftClient.getInstance();
