@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.sound.SoundEvents;
 
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -25,14 +26,14 @@ public class WinnerDataManager {
     private static final Path winnerDataFilePath = Paths.get(filePath);
 
     static class WinnerData {
-        String username;
-        int amount;
+        String username = "";
+        int amount = 0;
     }
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(1); // thread pool for database operations
     public CompletableFuture<Void> updateWinnerData() {
         return CompletableFuture.runAsync(() -> {
-            try { // created the directory if it's not existing
+            try {
                 if (!Files.exists(winnerDataFilePath.getParent())) {
                     System.out.println("Creating directories for winnerData.json.");
                     Files.createDirectories(winnerDataFilePath.getParent());
@@ -41,33 +42,26 @@ public class WinnerDataManager {
                 System.out.println("Failed to create directories for winnerData.json: " + exception.getMessage());
             }
 
+            Gson gson = new Gson();
+
             try {
-                if (Files.size(winnerDataFilePath) == 0) {
+                if (!Files.exists(winnerDataFilePath) || Files.size(winnerDataFilePath) == 0) {
+                    System.out.println("Couldn't find winnerData.json file.");
+
+                    WinnerData defaultData = new WinnerData();
+                    try (FileWriter writer = new FileWriter(winnerDataFilePath.toFile())) {
+                        gson.toJson(defaultData, writer);
+                        System.out.println("Created an empty winnerData.json file.");
+                    }
+
                     return;
                 }
             }
             catch (IOException exception) {
-                // ignore
+                System.out.println("Failed to create empty winnerData.json file: " + exception.getMessage());
+                actionBarNotification.sendMessage("Failed to create winnerData.json.", "§4");
+                playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
-
-            if (!Files.exists(winnerDataFilePath)) {
-                System.out.println("Couldn't find winnerData.json file.");
-                try {
-                    System.out.println("Creating an empty winnerData.json file.");
-                    String defaultJson = "";
-                    Files.write(winnerDataFilePath, defaultJson.getBytes());
-                    System.out.println("Created an empty winnerData.json file.");
-                }
-                catch (IOException exception) {
-                    System.out.println("Failed to create empty winnerData.json file: " + exception.getMessage());
-                    actionBarNotification.sendMessage("Failed to create winnerData.json.", "§4");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-                }
-
-                return;
-            }
-
-            Gson gson = new Gson();
 
             try (Reader reader = new FileReader(filePath)) {
                 WinnerData winnerData = gson.fromJson(reader, WinnerData.class); // parse JSON
@@ -91,6 +85,7 @@ public class WinnerDataManager {
                             playSoundEffect.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP);
                         }
 
+                        SendMessageAfterDraw.start();
                     }
                 } else {
                     this.username = "";
@@ -98,7 +93,7 @@ public class WinnerDataManager {
                 }
             }
             catch (IOException exception) {
-                System.out.println("Filed to read data from winnerData JSON file: " + exception.getMessage());
+                System.out.println("Filed to read data from winnerData.json file: " + exception.getMessage());
                 actionBarNotification.sendMessage("Failed to read winner data.", "§4");
                 playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
             }
