@@ -10,7 +10,7 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
     RouletteStatusCommands rouletteStatusCommands = new RouletteStatusCommands();
     PaymentCollectorCommands paymentCollectorCommands = new PaymentCollectorCommands();
     OtherCommands rouletteOtherCommands = new OtherCommands();
-    PaymenDataCommands paymenDataCommands = new PaymenDataCommands();
+    PaymentDataCommands paymenDataCommands = new PaymentDataCommands();
 
     PaymentCollector paymentCollector = new PaymentCollector();
     PaymentDataManager paymentDataManager = new PaymentDataManager();
@@ -49,6 +49,8 @@ public class RoulettePaymentTrackerClient implements ClientModInitializer {
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> {
             rouletteStatusCommands.reset_roulette_status();
         });
+
+        paymentDataManager.createEmptyDataFile();
 
         paymentCollector.registerListener((paymentUsername, paymentAmount) -> {
             paymentDataManager.saveData(paymentUsername, paymentAmount).exceptionally(expection -> { // saves data to JSON file

@@ -31,6 +31,26 @@ public class PaymentDataManager {
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(2); // thread pool for database operations
 
+    public void createEmptyDataFile() {
+        try {
+            if (!Files.exists(paymentDataPath.getParent())) {
+                System.out.println("Creating directories for paymentData.json file.");
+                Files.createDirectories(paymentDataPath.getParent());
+            }
+
+            String defaultJson = "[]";
+            Files.write(paymentDataPath, defaultJson.getBytes());
+
+            System.out.println("Created an empty paymentData.json file.");
+            actionBarNotification.sendMessage("Created empty paymentData.json.", "§a");
+            playSoundEffect.playSound(SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER);
+        } catch (IOException exception) {
+            System.out.println("Failed to create empty paymentData.json file: " + exception.getMessage());
+            actionBarNotification.sendMessage("Failed to create empty paymentData.json.", "§4");
+            playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
+        }
+    }
+
     public CompletableFuture<Void> saveData(String paymentUsername, long paymentAmount) {
 
         return CompletableFuture.runAsync(() -> { // runs the operation on background thread
@@ -47,20 +67,7 @@ public class PaymentDataManager {
                 System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
             }
 
-            if (!Files.exists(paymentDataPath)) {
-                System.out.println("Couldn't find paymentData.json file.");
-                try {
-                    System.out.println("Creating an empty paymentData.json file.");
-                    String defaultJson = "[]";
-                    Files.write(paymentDataPath, defaultJson.getBytes());
-                    System.out.println("Created an empty paymentData.json file.");
-                }
-                catch (IOException exception) {
-                    System.out.println("Failed to create empty paymentData.json file: " + exception.getMessage());
-                    actionBarNotification.sendMessage("Failed to create paymentData.json.", "§4");
-                    playSoundEffect.playSound(SoundEvents.ENTITY_ITEM_BREAK);
-                }
-            }
+            createEmptyDataFile();
 
             if (Files.exists(paymentDataPath)) {
                 try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) { // reads existing data

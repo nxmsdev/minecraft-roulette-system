@@ -80,6 +80,7 @@ public class WinnerDataManager {
 
                         if (minecraftClient != null && minecraftClient.player != null) {
                             minecraftClient.player.networkHandler.sendChatCommand(command);
+                            PaymentConfirmation.confirm();
 
                             actionBarNotification.sendMessage(String.format("Winner: %s | Amount: %d$.", username, amount), "§a");
                             playSoundEffect.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP);

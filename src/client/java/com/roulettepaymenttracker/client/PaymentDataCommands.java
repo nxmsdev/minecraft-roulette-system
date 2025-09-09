@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class PaymenDataCommands {
+public class PaymentDataCommands {
     private static final ActionBarNotification actionBarNotification = new ActionBarNotification();
     private static final PlaySoundEffect playSoundEffect = new PlaySoundEffect();
 
