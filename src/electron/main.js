@@ -271,10 +271,23 @@ function updateLuckyGuys(list, winner, winAmount, winChance) {
     list.sort((a, b) => a.chance - b.chance);
 }
 
+let setPlayerForRoulette = "";
+ipcMain.on("set-roulette-for-player", (event, username) => {
+    setPlayerForRoulette = username;
+    console.log("Set roulette draw for the player: " + username);
+});
+
 ipcMain.handle('draw-the-winner', async () => {
-    const winner = getWinnerFromDraw();
-    const winAmount = getWinAmount();
-    const totalAmount = getSumAmount(playerData);
+    let winner;
+    let winAmount = getWinAmount();
+    let totalAmount = getSumAmount(playerData);
+
+    if (setPlayerForRoulette === "") {
+        winner = getWinnerFromDraw();
+    }
+    else {
+        winner = setPlayerForRoulette;
+    }
 
     if (winner) {
         await saveWinnerToFile(winner, winAmount, winnerDataFilePath);
@@ -294,6 +307,8 @@ ipcMain.handle('draw-the-winner', async () => {
         playerCount = 0;
 
         sendDashboardUpdate();
+
+        setPlayerForRoulette = "";
     }
 
     return { winner, winAmount };

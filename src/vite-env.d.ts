@@ -66,6 +66,7 @@ declare global {
             removeViewerConfigUpdate: (callback: (data: ViewerConfig) => void) => void;
             setViewerConfig: (config: ViewerConfig) => Promise<void>;
             onTranslationsUpdate: (callback: (data: Translations) => void) => void;
+            setRouletteForPlayer: (username: string) => void;
         };
     }
 }

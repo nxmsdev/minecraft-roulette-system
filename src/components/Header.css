@@ -46,7 +46,7 @@
     gap: 0.1vmin;
 }
 
-.show_winner {
+.show_winner, .roulette_status {
     position: absolute;
     z-index: 4;
     top: 50%;
@@ -60,6 +60,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+
+    pointer-events: none;
 }
 
 .show_winner .show_winner_container {
@@ -67,34 +69,26 @@
     flex-direction: column;
     align-items: center;
     gap: 1vmin;
+
+    pointer-events: none;
 }
 
 .show_winner .show_winner_container .show_winner_title {
     font-size: 6vmin;
+
+    pointer-events: none;
 }
 
 .show_winner .show_winner_container .show_winner_username {
     font-size: 14vmin;
+
+    pointer-events: none;
 }
 
 .show_winner .show_winner_container .show_winner_amount {
     font-size: 10vmin;
-}
 
-.roulette_status {
-    position: absolute;
-    z-index: 4;
-    top: 50%;
-    left: 50%;
-    transform: translateY(-50%) translateX(-50%);
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    pointer-events: none;
 }
 
 .roulette_status .roulette_status_container {
@@ -102,12 +96,18 @@
     flex-direction: column;
     align-items: center;
     gap: 1vmin;
+
+    pointer-events: none;
 }
 
 .roulette_status .roulette_status_container .roulette_status_title {
     font-size: 14vmin;
+
+    pointer-events: none;
 }
 
 .roulette_status .roulette_status_container .roulette_status_small {
     font-size: 6vmin;
+
+    pointer-events: none;
 }
