@@ -67,8 +67,6 @@ public class PaymentDataManager {
                 System.out.println("Failed to create directories for paymentData.json file: " + exception.getMessage());
             }
 
-            createEmptyDataFile();
-
             if (Files.exists(paymentDataPath)) {
                 try (Reader fileReader = Files.newBufferedReader(paymentDataPath)) { // reads existing data
                     Type listType = new TypeToken<List<PlayerDataHolder>>(){}.getType(); // defines expected type od List<PlayerDataHolder>
