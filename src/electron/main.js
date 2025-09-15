@@ -124,6 +124,7 @@ async function createWindow() {
         webPreferences: {
             preload: getPreloadPath(), // preloads preload.js file
             contextIsolation: true, // isolates renderer context for security
+            backgroundThrottling: false // disables Chromium’s background throttling
         }
     });
 
