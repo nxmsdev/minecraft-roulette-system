@@ -21,14 +21,14 @@ public class PaymentCollector {
     private long parseAmount(String rawAmount) {
         rawAmount = rawAmount.replaceAll("[$]", "");
 
-        if (rawAmount.matches("(?i).*k$")) {
-            double value = Double.parseDouble(rawAmount.replaceAll("(?i)k$", ""));
+        if (rawAmount.matches("(?i).*(k)$")) {
+            double value = Double.parseDouble(rawAmount.replaceAll("(?i)(k)$", ""));
             return (long) (value * 1000);
         } else if (rawAmount.matches("(?i).*(mln|m)$")) {
             double value = Double.parseDouble(rawAmount.replaceAll("(?i)(mln|m)$", ""));
             return (long) (value * 1_000_000);
         } else if (rawAmount.matches("(?i).*(b)$")) {
-            double value = Double.parseDouble(rawAmount.replaceAll("(?i)(mln|m)$", ""));
+            double value = Double.parseDouble(rawAmount.replaceAll("(?i)(b)$", ""));
             return (long) (value * 1_000_000_000);
         } else {
             return (long) Double.parseDouble(rawAmount);
