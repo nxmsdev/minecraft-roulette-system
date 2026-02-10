@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "roulettepaymenttracker",
+  "version": "1.0.12",
+  "name": "RoulettePaymentTracker",
+  "description": "",
+  "authors": ["nxms"],
+  "contact": {},
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "com.roulettepaymenttracker.client.RoulettePaymentTrackerDataGenerator"
+    ],
+    "client": [
+      "com.roulettepaymenttracker.client.RoulettePaymentTrackerClient"
+    ],
+    "main": [
+      "com.roulettepaymenttracker.RoulettePaymentTracker"
+    ]
+  },
+  "mixins": [
+    "roulettepaymenttracker.mixins.json",
+    {
+      "config": "roulettepaymenttracker.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
