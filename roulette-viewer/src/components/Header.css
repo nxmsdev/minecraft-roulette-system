@@ -1,0 +1,113 @@
+﻿.header {
+    height: 7vh;
+    width: 92vw;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    padding: 0vw 4vw;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    font-size: 2.8vmin;
+
+    background-color: rgba(0, 0, 0, 0.3);
+
+    z-index: 1;
+
+    border-bottom: 2px solid rgba(0, 0, 0, 0.3);
+}
+
+.header_title {
+    font-size: 3.2vmin;
+}
+
+.header div {
+    padding: 0.8vmin;
+}
+
+.header_right_container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 30px;
+}
+
+.header_counter {
+    display: flex;
+    flex-direction: row;
+    gap: 0.1vmin;
+}
+
+.right_cont_text {
+    display: flex;
+    flex-direction: row;
+    gap: 0.1vmin;
+}
+
+.show_winner, .roulette_status {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    pointer-events: none;
+}
+
+.show_winner .show_winner_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vmin;
+
+    pointer-events: none;
+}
+
+.show_winner .show_winner_container .show_winner_title {
+    font-size: 6vmin;
+
+    pointer-events: none;
+}
+
+.show_winner .show_winner_container .show_winner_username {
+    font-size: 14vmin;
+
+    pointer-events: none;
+}
+
+.show_winner .show_winner_container .show_winner_amount {
+    font-size: 10vmin;
+
+    pointer-events: none;
+}
+
+.roulette_status .roulette_status_container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1vmin;
+
+    pointer-events: none;
+}
+
+.roulette_status .roulette_status_container .roulette_status_title {
+    font-size: 14vmin;
+
+    pointer-events: none;
+}
+
+.roulette_status .roulette_status_container .roulette_status_small {
+    font-size: 6vmin;
+
+    pointer-events: none;
+}

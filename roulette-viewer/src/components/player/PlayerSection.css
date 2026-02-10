@@ -1,0 +1,42 @@
+﻿.player_section {
+    display: flex;
+    flex-direction: column;
+}
+
+.amount_of_bets, .payment_command {
+    padding-left: 1wv;
+    padding-right: 1wv;
+    padding-top: 1vh;
+    margin-left: 2vw;
+    margin-right: 2vw;
+}
+
+.player_section_top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.player_containers {
+    padding: 1.5vh 1vw;
+    width: 75vw;
+
+    display: flex;
+    flex-direction: row;
+    align-content: flex-start;
+    justify-content: flex-start;
+    gap: 1.5vmin;
+    flex-wrap: wrap;
+    overflow: hidden;
+}
+
+.payment_command {
+    display: flex;
+    flex-direction: row;
+    gap: 1vmin;
+}
+
+.payment_command div {
+    text-wrap: nowrap;
+}

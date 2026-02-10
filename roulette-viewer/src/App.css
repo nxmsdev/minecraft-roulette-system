@@ -1,0 +1,10 @@
+﻿.app {
+    display: flex;
+    flex-direction: column;
+}
+
+.under_header {
+    display: flex;
+    flex-direction: row-reverse;
+    height: 93vh;
+}
